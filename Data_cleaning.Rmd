@@ -1,0 +1,187 @@
+---
+title: "Data_cleaning"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Cleaning data
+The processes of cleaning your data can be the most time-consuming part of any data analysis. The most important steps are considered below. While there are many approaches, those using the dplyr and tidyr packages are some of the quickest and easiest to learn.
+
+Package	Function	Use
+dplyr	select	select variables/columns
+dplyr	filter	select observations/rows
+dplyr	mutate	transform or recode variables
+dplyr	summarize	summarize data
+dplyr	group_by	identify subgroups for further processing
+tidyr	gather	co nvert wide format dataset to long format
+tidyr	spread	convert long format dataset to wide format
+Examples in this section will use the starwars dataset from the dplyr package. The dataset provides descriptions of 87 characters from the Starwars universe on 13 variables.
+
+#Selecting variables
+The select function allows you to limit your dataset to specified variables (columns).
+```{r}
+library(dplyr)
+
+# keep the variables name, height, and gender
+newdata <- select(starwars, name, height, gender)
+
+# keep the variables name and all variables 
+# between mass and species inclusive
+newdata <- select(starwars, name, mass:species)
+
+# keep all variables except birth_year and gender
+newdata <- select(starwars, -birth_year, -gender)
+
+```
+# Selecting observations
+The filter function allows you to limit your dataset to observations (rows) meeting a specific criteria. Multiple criteria can be combined with the & (AND) and | (OR) symbols.
+
+```{r}
+library(dplyr)
+
+# select females
+newdata <- filter(starwars, sex == "female")
+
+# select females that are from Alderaan
+newdata <- filter(starwars, 
+                  sex == "female" & 
+                  homeworld == "Alderaan")
+
+
+# select individuals that are from 
+# Alderaan, Coruscant, or Endor
+newdata <- filter(starwars, 
+                  homeworld == "Alderaan" | 
+                  homeworld == "Coruscant" | 
+                  homeworld == "Endor")
+
+# this can be written more succinctly as
+newdata <- filter(starwars, 
+                  homeworld %in% c("Alderaan", "Coruscant", "Endor"))
+
+```
+
+#Creating/Recoding variables
+The mutate function allows you to create new variables or transform existing ones.
+```{r}
+library(dplyr)
+
+# convert height in centimeters to inches, 
+# and mass in kilograms to pounds
+newdata <- mutate(starwars, 
+                  height = height * 0.394,
+                  mass   = mass   * 2.205)
+
+# if height is greater than 180 
+# then heightcat = "tall", 
+# otherwise heightcat = "short"
+
+newdata <- mutate(starwars,
+                  heightcat = ifelse(height > 180,"tall","short"))
+                  
+# convert any eye color that is not 
+# black, blue or brown, to other
+newdata <- mutate(starwars, 
+                  eye_color = ifelse(eye_color %in% c("black", "blue",  
+                                                      "brown"),
+                                     eye_color,"other"))
+# set heights greater than 200 or 
+# less than 75 to missing
+newdata <- mutate(starwars, 
+                  height = ifelse(height < 75 | height > 200, NA,height))
+```
+#Summarizing data
+The summarize function can be used to reduce multiple values down to a single value (such as a mean). It is often used in conjunction with the by_group function, to calculate statistics by group. In the code below, the na.rm=TRUE option is used to drop missing values before calculating the means.
+
+```{r}
+library(dplyr)
+
+# calculate mean height and mass
+newdata <- summarize(starwars, 
+                     mean_ht = mean(height, na.rm=TRUE), 
+                     mean_mass = mean(mass, na.rm=TRUE))
+newdata
+
+# calculate mean height and weight by gender
+newdata <- group_by(starwars, sex)
+newdata <- summarize(newdata, 
+                     mean_ht = mean(height, na.rm=TRUE), 
+                     mean_wt = mean(mass, na.rm=TRUE))
+newdata
+
+```
+# Using pipes
+Packages like dplyr and tidyr allow you to write your code in a compact format using the pipe %>% operator. Here is an example.
+The %>% operator passes the result on the left to the first parameter of the function on the right.
+```{r}
+newdata <- filter(starwars, 
+                  sex == "female")
+newdata <- group_by(species)
+newdata <- summarize(newdata, 
+                     mean_ht = mean(height, na.rm = TRUE))
+
+# this can be written as
+newdata <- starwars %>%
+  filter(sex == "female") %>%
+  group_by(species) %>%
+  summarize(mean_ht = mean(height, na.rm = TRUE))
+
+```
+#  Reshaping data
+Some graphs require the data to be in wide format, while some graphs require the data to be in long format.
+
+```{r}
+id <- c(1,2,3)
+name <- c("Bill","Bob","Mary")
+sex <- c("Male","Male","Female")
+age <- c(22,25,18)
+income <- c(5500,7500,9000)
+wide_data <- data.frame(id,name,sex,age,income)
+
+library(tidyr)
+long_data <- gather(wide_data, 
+                    key="variable", 
+                    value="value", 
+                    sex:income)
+#Conversely, you can convert a long dataset to a wide dataset using
+wide_data <- spread(long_data, variable, value)
+```
+#Missing data
+Real data are likely to contain missing values. There are three basic approaches to dealing with missing data: feature selection, listwise deletion, and imputation. Let’s see how each applies to the msleep dataset from the ggplot2 package. The msleep dataset describes the sleep habits of mammals and contains missing values on several variables.
+Feature selection
+In feature selection, you delete variables (columns) that contain too many missing values.
+```{r}
+data(msleep, package="ggplot2")
+
+# what is the proportion of missing data for each variable?
+pctmiss <- colSums(is.na(msleep))/nrow(msleep)
+round(pctmiss, 2)
+#Sixty-one percent of the sleep_cycle values are missing. You may decide to drop it.
+```
+#Listwise deletion
+Listwise deletion involves deleting observations (rows) that contain missing values on any of the variables of interest.
+
+```{r}
+# Create a dataset containing genus, vore, and conservation.
+# Delete any rows containing missing data.
+newdata <- select(msleep, genus, vore, conservation)
+newdata <- na.omit(newdata)
+
+```
+# Imputation
+Imputation involves replacing missing values with “reasonable” guesses about what the values would have been if they had not been missing. There are several approaches, as detailed in such packages as VIM, mice, Amelia and missForest. Here we will use the kNN function from the VIM package to replace missing values with imputed values.
+
+```{r}
+# Impute missing values using the 5 nearest neighbors
+library(VIM)
+newdata <- kNN(msleep, k=5)
+```
+Basically, for each case with a missing value, the k most similar cases not having a missing value are selected. If the missing value is numeric, the mean of those k cases is used as the imputed value. If the missing value is categorical, the most frequent value from the k cases is used. The process iterates over cases and variables until the results converge (become stable). This is a bit of an oversimplification - see Imputation with R Package VIM for the actual details

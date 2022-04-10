@@ -1,0 +1,468 @@
+---
+title: "Introduction To R Programming"
+author: "Author: Mehdi Mirzaie"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  #html_document:
+  pdf_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Types in R Programming
+
+In programming languages, we need to use various variables to store various information. Variables are the reserved memory location to store values. As we create a variable in our program, some space is reserved in memory.
+
+In R, there are several data types such as integer, string, etc. The operating system allocates memory based on the data type of the variable and decides what can be stored in the reserved memory.
+
+There are the following data types which are used in R programming:
+
+```{r data-types,out.width="50%"}
+knitr::include_graphics("C:/Users/mirza/Desktop/R_Programming/r-programming-data-types.png")
+
+```
+
+##  Scalar
+
+A scalar is a single number. A scalar is zero-dimensional.
+
+```{r scaler}
+4         # a single number
+a = 4     # store as a value
+a * 10    # can do calculation 
+half.a = a/2
+half.a
+```
+
+## Vectors
+
+A vector is a row of numbers. A vector is one-dimensional.
+
+```{r vectors}
+vector1 = c(1, 4, 5, 12)  # this vector has 4 elements
+class(vector1) #The function class() indicates the class (the type of element) of an object
+vector1 <- c(vector1, 90) # add to the end of the vector
+vector1 <- c(30, vector1) # add to the beginning of the vector
+print(vector1)
+vector2 = c(2, 0, -1, -3)
+vector1 + vector2
+stname <- c("ali","rahim","fatemeh")
+bool_vec <- c(T,T,F,F,T,F)
+
+```
+## R has several facilities to create sequences of numbers:
+
+```{r sequences}
+
+letters; LETTERS; month.name; month.abb # Generates lower case letters, capital letters, month names and abbreviated month names, respectively.
+vector3 = 1:20            # generates a vectors with integers from 1 to 20
+2*1:10                                  # Creates a sequence of even numbers.
+vector4 = rnorm(20)      # This vector with 20 elements is generated from the normal distribution with mean 0 and standard deviation 1.
+vector5 = seq(from = 0, to = 50, by = 5) # use the seq() function to construct a sequence of integers from 0 to 50 with 0.5 increments.
+print(vector5)
+vector6 = seq(0,1,length.out = 11)
+
+seq(length=100, from=20, by=0.5)        # Creates number sequence with specified start and length.
+
+
+
+rep(1,5)
+rep(c(4,7,9),5)
+rep(c(4,7,9),each=5)
+rep(c(4,7,9),c(2,4,3))
+
+rep(LETTERS[1:8], times=5)              # Replicates given sequence or vector x times.
+
+```
+
+### Subsetting vectors
+If we want to extract one or several values from a vector, we must provide one or several indices in square brackets. For instance:
+```{r Subsetting vectors}
+wt <- c(63,65,72.3,64.5,69.7,23,12.45,44,92)
+class(wt)
+length(wt)
+wt[4]
+wt[c(2,4,9)]
+wt[2:8]
+wt[-7]
+
+x <- 1:100; x[2:23]                      # Values in square brackets select vector range.
+x <- 1:100; x[-(2:23)]                  # Prints everything except the values in square brackets.
+x[5] <- 99                            # Replaces value at position 5 with '99'.
+x <- 1:10; y <- c(x[1:5],99,x[6:10]); y    # Inserts new value at defined position of vector.
+letters=="c"                               # Returns logical vector of "FALSE" and "TRUE" strings.
+which(rep(letters,2)=="c")                 # Returns index numbers where "c" occurs in the 'letters' vector. 
+#For retrieving indices of several strings provided by query vector, use the following 'match' function:
+match(c("c","g"), letters)                 
+     # Returns index numbers for "c" and "g" in the 'letters' vector. If thequery vector (here 'c("c","g")') contains entries that are duplicated in the target vector, then this syntax returns only the first occurence(s) for each duplicate. 
+       
+#To retrieve the indices for all duplicates, use the following '%in%' function:
+x <- rep(1:10, 2); y <- c(2,4,6); x %in% y 
+ # The function '%in%' returns a logical vector. This syntax allows the subsetting of vectors and data frames with a query vector ('y') containing entries that are duplicated in the target vector ('x'). The resulting logical vector can be used for the actual subsetting step of vectors and data frames.
+
+```
+## Conditional subsetting
+
+Another common way of subsetting is by using a logical vector. TRUE will select the element with the same index, while FALSE will not:
+
+```{r conditional subsetting}
+wt <- c(63,65,72.3,64.5,69.7,23,12.45,44,92)
+sort(wt)
+order(wt)
+wt>=70
+wt[wt>=70]
+wt[wt>=70]<- wt[wt>=70]-5
+wt[wt%%2 == 0] 
+wt[wt < 30 | wt > 50]
+#try sort,order, unique functions
+
+```
+## Finding Identical and Non-Identical Entries between Vectors
+
+```{r indentical-nonidentical}
+intersect(month.name[1:4], month.name[3:7])                 # Returns identical entries of two vectors.
+month.name[month.name %in% month.name[3:7]]                 # Returns the same result as in the previous step. The vector comparison with %in% returns first a logical vector of identical items that is then used to subset the first vector.
+setdiff(x=month.name[1:4], y=month.name[3:7]); setdiff(month.name[3:7], month.name[1:4]) 
+     # Returns the unique entries occuring only in the first vector. 
+       #Note: if the argument names are not used, as in the second example, then the order of the arguments is important.
+union(month.name[1:4], month.name[3:7])                    # Joins two vectors without duplicating identical entries.
+x <- c(month.name[1:4], month.name[3:7]); x[duplicated(x)] #  Returns duplicated entries
+
+```
+
+## Missing data
+As R was designed to analyze datasets, it includes the concept of missing data (which is uncommon in other programming languages). Missing data are represented in vectors as NA.
+
+When doing operations on numbers, most functions will return NA if the data you are working with include missing values. This feature makes it harder to overlook the cases where you are dealing with missing data. You can add the argument na.rm = TRUE to calculate the result while ignoring the missing values.
+
+```{r missing}
+heights <- c(2, 4, 4, NA, 6)
+mean(heights)
+max(heights)
+mean(heights, na.rm = TRUE)
+max(heights, na.rm = TRUE)
+```
+
+## Character Vectors
+```{r character vec}
+paste(LETTERS[1:8], 1:12, sep="") # The command 'paste' merges vectors after converting to characters.
+x <- paste(rep("A", times=12), 1:12, sep=""); y <- paste(rep("B", times=12), 1:12, sep=""); append(x,y)
+# Possibility to build plate location vector in R (better example under 'arrays').
+
+```
+
+## Matrices
+A matrices are two-dimensional vectors. To define a matrix, use the function matrix
+
+
+```{R matices}
+#?matrix  # get help about function matrix
+
+matrix(data = c(1:20), nrow = 2)
+matrix(data = c(1:20), ncol = 2)
+matrix(data = c(1:20), nrow = 4, ncol = 5)
+matrix(data = c(1:20), ncol = 5, nrow = 4)
+
+A = matrix(data = c(1:20), nrow = 2)
+A[1,2]  # extract element in row 1 column 2
+A[1,]   # extract all elements in row 1.
+A[,5]   # extract all elements in column 5.
+dim(A)
+nrow(A)
+ncol(A)
+
+# A more complicated example
+matrix(1:6, nrow = 2)
+m <- matrix(1:6, nrow = 2, dimnames = list(c("a", "b"), LETTERS[1:3]))
+m
+m["a",]
+m["b","C"]
+
+
+#define matrix using rbind and cbind
+x1 <- 1:5
+x2 <- c(7,4,6,2,1)
+x3 <- seq(0,2,length=5)
+cbind(x1,x2,x3)
+B <- cbind(x1,x2,x3)
+B
+B[1,2]
+B[1,"x3"]
+is.matrix(B)
+class(B)   
+B[-3,] #remove row 3
+B[,-3] #remove column 3
+
+C <- rbind(1:5,month.abb[1:5],rep(TRUE,5))
+C
+rownames(C) <- letters[1:3]
+colnames(C) <- LETTERS[1:5]
+print(C)
+
+
+```
+
+## Matrix subsetting
+
+```{r matrix subset}
+A <- cbind(1:5,c(7,4,6,2,1),seq(0,2,length=5))
+A
+A[A[,2]>3,]
+A[3,] <- rep(10,3)
+A
+rowSums(A)
+colSums(A)
+rowMeans(A)
+apply(A,1,sum)
+```
+##excercise
+```{r exer}
+age <- c(30,40,60,25,55)
+income <- c(2000,3000,4000,1200,500)
+experience <- c(7,9,11,4,1)
+data <- cbind(age,income,experience)
+data
+data[order(data[,2]),]
+
+```
+## Array
+Arrays are similar to Matrix, but they can have one, two or more dimensions. In contrast to data frames (see below), one can store only a single data type in the same object (e.g. numeric or character).
+
+```{r Array}
+x <- matrix(1:30, 3, 10, byrow = T) # Lays out vector (1:30) in 3 by 10 matrix. The argument 'byrow' defines whether the matrix is filled by row or columns.
+class(x)
+dim(x) <- c(3,5,2)          # Transforms above matrix into multidimensional array.
+class(x)
+x[1,3,2]
+x[1,3,]
+apply(x,3,mean)
+x <- array(1:25, dim=c(5,5))        # Creates 5 by 5 array ('x') and fills it with values 1-25.
+y <- c(x)                           # Writes array into vector.
+x[c(1:5),3]                         # Writes values from 3rd column into vector structure.
+mean(x[c(1:5),3])                   # Calculates mean of 3rd column.
+
+```
+## Factors
+
+Tell R that a variable is nominal by making it a factor. The factor stores the nominal values as a vector of integers in the range [ 1... k ] (where k is the number of unique values in the nominal variable), and an internal vector of character strings (the original values) mapped to these integers.
+
+```{R Factors}
+# variable gender with 20 "male" entries and 30 "female" entries
+gender <- c(rep("male",20), rep("female", 30))
+class(gender)
+gender <- factor(gender)
+class(gender)
+levels(gender)
+# stores gender as 20 1s and 30 2s and associates
+# 1=female, 2=male internally (alphabetically)
+# R now treats gender as a nominal variable
+summary(gender)
+
+#An ordered factor is used to represent an ordinal variable.
+fer <- c(rep("5%",5),rep("10%",7),rep("15%",4))
+fer.ordered <- factor(fer,levels=c("5%","10%","15%"),ordered=T)
+fer.ordered
+```
+
+## Data Frame
+
+Data frames are two dimensional data objects that are composed of rows and columns. They are very similar to matrices. A data frames is a matrix with names above the columns. Use the function data.frame() to create a data frame.The main difference is that data frames can store different data types, whereas matrices allow only one data type (e.g. numeric or character).
+
+
+```{R dataframe}
+#?data.frame
+gender <- c("Female","Male","Male", "Female", "Male")
+age<- c(27,32,51,46,24)
+score <- c(112,127,105, 134,97)
+Frame = data.frame(gender, age,score)
+Frame
+class(Frame)    # Prints a handy summary for a data frame.
+dim(Frame)      # Gives dimensions of data frame.
+summary(Frame)
+#You can extract specific columns from a data frame.
+names(Frame)
+Frame$gender   # extract column gender by specifying the name of the column
+Frame[,1]   # extract column one by specifying the location of the column.
+Frame[,c(1,3)]  # extract columns one (gender) and three (score)
+#You can do calculation with columns
+mean(Frame$score)  # find the mean
+sd(Frame$score)    # find the standard deviation
+
+New_Frame <- data.frame(New_column=rep(3,5), Frame) 
+New_Frame
+New_Frame[,2:3]; 
+New_Frame[,-1]   #Different possibilities to remove column(s) from a data frame.
+
+colnames(Frame); rownames(Frame)             # Gives column and row names of data frame.
+row.names(Frame)                    # Prints row names or indexing column of data frame.
+Frame[order(Frame$age, decreasing=TRUE), ]    # Sorts the rows of a data frame by the specified columns, here 'age'; for increasing order use 'decreasing=FALSE'.
+Frame[1:3,]              # Notation to view only the first five rows of all columns.
+Frame[, 1:2]             #Notation to view all rows of the first two columns.
+Frame[, c(1,3)]         # Notation to view all rows of the specified columns.
+Frame[1:5,1:2]         # Notation to view only the first five rows of the columns 1-2.
+x <- data.frame(row.names=LETTERS[1:10], letter=letters[1:10], Month=month.name[1:10])
+x
+match(c("c","g"), x[,1]) 
+# Returns matching index numbers of data frame or vector using 'match' function. This syntax returns for duplicates only the index of their first occurrence. 
+# To return all, use the following syntax:
+x[x[, 2] %in% month.name[3:7],]        # Subsets a data frame with a query vector using the '%in%' function. This returns all occurences of duplicates.
+
+# The apply function performs row-wise or column-wise calculations on data frames or matrices (here mean and ratios). The results are returned as vectors.
+Frame <- New_Frame
+Frame <- data.frame(Frame, mean=apply(Frame[,3:4], 1, mean), ratio=(Frame[,3]/Frame[,1]))
+# In this example, they are appended to the original data frame with the data.frame function. The argument '1' in the apply function specifies row-wise calculations.
+# If '2' is selected, then the calculations are performed column-wise.
+Frame
+
+aggregate(Frame[,3:6], by=list(c("G1","G2","G2","G1","G2")), FUN=mean) 
+cor(Frame[,3:4])         # Syntax to calculate a correlation matrix based on all-against-all rows.
+```
+
+
+## Lists
+A list is a collection of different types of vectors that don't have to be of the same length, unlike matrices and data frames.
+
+```{R list}
+L = list(adad = 1, bordar = c(1,2), three = seq(0, 1, length = 5), four = c ("mary", "bob"))
+class(L)
+
+names(L) # get the names of the list L
+n = c(2, 3, 5) 
+s = c("aa", "bb", "cc", "dd", "ee") 
+b = c(TRUE, FALSE, TRUE, FALSE, FALSE) 
+x = list(n, s, b)   # x contains copies of n, s, b 
+x
+x[[1]]
+L[[1]]
+L$four
+L$four[1]
+
+mylist <- list(x=rnorm(6),fun=mean, name = "ali")
+length(mylist)
+mylist$x
+mylist$fun(mylist$x)
+```
+
+##Tables
+Another common way to store information is in a table. Here we look at how to define both one way and two way tables. We only look at how to create and define tables; the functions used in the analysis of proportions are examined in another chapter.
+
+
+
+One Way Tables
+The first example is for a one way table. One way tables are not the most interesting example, but it is a good place to start. One way to create a table is using the table command. The arguments it takes is a vector of factors, and it calculates the frequency that each factor occurs. Here is an example of how to create a one way table:
+
+```{r Tables}
+
+ test <- factor(c("A","A","B","A","B","B","C","A","C"))
+ results <- table(test)
+ results
+ attributes(results)
+ 
+ 
+## Two Way Tables
+#If you want to add rows to your table just add another vector to the argument of the table command. In the example below we have two questions. In the first question the responses are labeled “Never,” “Sometimes,” or “Always.” In the second question the responses are labeled “Yes,” “No,” or “Maybe.” The set of vectors “a,” and “b,” contain the response for each measurement. The third item in “a” is how the third person responded to the first question, and the third item in “b” is how the third person responded to the second question.
+
+ a <- c("Sometimes","Sometimes","Never","Always","Always","Sometimes","Sometimes","Never")
+ b <- c("Maybe","Maybe","Yes","Maybe","Maybe","No","Yes","No")
+ results <- table(a,b)
+ results
+
+ #The table command allows us to do a very quick calculation, and we can immediately see that two people who said “Maybe” to the first question also said “Sometimes” to the second question.
+
+#Just as in the case with one-way tables it is possible to manually enter two way tables. The procedure is exactly the same as above except that we now have more than one row. We give a brief example below to demonstrate how to enter a two-way table that includes breakdown of a group of people by both their gender and whether or not they smoke. You enter all of the data as one long list but tell R to break it up into some number of columns:
+
+ sexsmoke<-matrix(c(70,120,65,140),ncol=2,byrow=TRUE)
+ rownames(sexsmoke)<-c("male","female")
+ colnames(sexsmoke)<-c("smoke","nosmoke")
+ sexsmoke <- as.table(sexsmoke)
+ sexsmoke
+
+ #The matrix command creates a two by two matrix. The byrow=TRUE option indicates that the numbers are filled in across the rows first, and the ncols=2 indicates that there are two columns.
+ 
+```
+## Built-in Datasets and Basic Operations
+
+```{R Built-in Datasets}
+library(datasets) # initialize
+library(help=datasets) # display the datasets
+
+```
+The below set of codes will be frequently used if you are going to be playing around with data. So I highly recommend you to practice these once over and over to get a good handle over them.
+```{R highly used}
+class(airquality)  # get class
+sapply(airquality, class)  # get class of all columns
+str(airquality)  # structure
+summary(airquality)  # summary of airquality
+head(airquality)  # view the first 6 obs
+fix(airquality)  # view spreadsheet like grid
+rownames(airquality)  # row names
+colnames(airquality)  # columns names
+nrow(airquality)  # number of rows
+ncol(airquality)  # number of columns
+
+```
+##Below is a code that drops the Temp column from airquality data frame and returns only those observations with Day=1. Note that the which() is an independent function, therefore, the full object name must be used. Just which(Day==1) will not work, since there is no variable called Day defined.
+```{R}
+subset(airquality, Day == 1, select = -Temp)  # select Day=1 and exclude 'Temp'
+airquality[which(airquality$Day==1), -c(4)]  # same as above
+
+```
+
+##Sampling
+Sampling your data into training(data on which models are built) and test(known data on which models are tested) is a common activity. Lets see how this can be done by creating a randomized 70:30 training and test sample from airquality.
+
+```{R sampling}
+trainIndex <- sample(c(1:nrow(airquality)), size=nrow(airquality)*0.7, replace=F)  # get test sample indices
+Train <- airquality[trainIndex, ]  # training data
+Test <- airquality[-trainIndex, ]  # test data
+```
+What was that! Here we create a 70% random sample of the row indices of the airquality data frame and use it to make the training and test samples. As you can see, the arguments that are passed to the sample() function are computed from within. For example, we needed a 70% sample, size = nrow(airquality) * 0.7, will compute 70% of the number of rows in airquality for the size argument. Moreover, we are actually defining the ‘sample’(1:nrow(airquality)) itself within the function only. Though this is a ‘unclean’ method of writing code, you get the taste of flexibility and control that the language has to offer.
+
+## Paste function
+
+```{R paste}
+paste("a", "b")  # "a b"
+paste0("a", "b")  # concatenate without space, "ab"
+paste("a", "b", sep="")  # same as paste0
+paste(c(1:4), c(5:8), sep="")  # "15" "26" "37" "48"
+paste(c(1:4), c(5:8), sep="", collapse="")  # "15263748"
+paste0(c("var"), c(1:5))  # "var1" "var2" "var3" "var4" "var5"
+paste0(c("var", "pred"), c(1:3))  # "var1" "pred2" "var3"
+paste0(c("var", "pred"), rep(1:3, each=2))  # "var1" "pred1" "var2" "pred2" "var3" "pred3
+```
+## The apply family
+```{R apply family}
+#apply(): Apply FUN through a data frame or matrix by rows or columns.
+myData <- matrix(seq(1,16), 4, 4)  # make a matrix
+apply(myData, 1, FUN=min)  # apply 'min' by rows
+apply(myData, 2, FUN=min)  # apply 'min' by columns
+apply(data.frame(1:5), 1, FUN=function(x) {x^2})  # square of 1,2,3,4,5
+
+#lapply(): Apply FUN to each element in a list(or) to columns of a data frame and return the result as a list.
+
+pnames <- c("GOERGE","DAVID","CHARLS","FIGO")
+pnames_lower <-lapply(pnames, tolower)
+pnames_lower
+str(pnames_lower)
+
+lapply(airquality, class)  # return classes of each column in 'airquality' in a list
+
+# sapply(): Apply FUN to each element of a list(or) to columns of a data frame and return the result as a vector.
+#Lets look at an example to get the class of each column in a data frame.
+
+sapply(airquality, class)  # return classes of each column in 'airquality'
+
+#tapply(): 
+attributes(iris)
+apply(iris[,1:3], 1, mean)            # Calculates the mean values for the columns 1-3 in the sample data frame 'iris'. 
+# With the argument setting '1', row-wise iterations are performed and with '2' column-wise iterations.
+tapply(iris[,4], iris$Species, mean)  # Calculates the mean values for the 4th column based on the grouping information in the 'Species' column in the 'iris' data frame.
+
+
+```
+
